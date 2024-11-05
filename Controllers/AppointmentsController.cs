@@ -27,9 +27,9 @@ namespace EHospital.Controllers
         {
             return await _context.Appointments.ToListAsync();
         }
-
         // GET: api/Appointments/5
         [HttpGet("{id}")]
+
         public async Task<ActionResult<Appointment>> GetAppointment(int id)
         {
             var appointment = await _context.Appointments.FindAsync(id);
@@ -99,7 +99,21 @@ namespace EHospital.Controllers
 
             return NoContent();
         }
+        [HttpGet("doctor/{doctorId}/date/{appointmentDate}")]
+        public async Task<ActionResult<IEnumerable<Appointment>>> GetAppointmentsByDoctorAndDate(int doctorId, DateTime appointmentDate)
+        {
+            // Lấy danh sách tất cả lịch hẹn của bác sĩ theo ID trong ngày đã cho
+            var appointments = await _context.Appointments
+                .Where(a => a.DoctorId == doctorId && a.AppointmentDate.Date == appointmentDate.Date)
+                .ToListAsync();
 
+            if (appointments == null || !appointments.Any())
+            {
+                return NotFound("Không tìm thấy lịch hẹn nào cho bác sĩ này trong ngày đã chỉ định.");
+            }
+
+            return Ok(appointments);
+        }
         private bool AppointmentExists(int id)
         {
             return _context.Appointments.Any(e => e.AppointmentId == id);

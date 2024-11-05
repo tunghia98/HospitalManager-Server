@@ -41,6 +41,32 @@ namespace EHospital.Controllers
 
             return doctorSchedule;
         }
+        // GET: api/Appointments/doctor-schedule/{doctorId}
+        [HttpGet("doctor-schedule/{doctorId}")]
+        public async Task<ActionResult<IEnumerable<DoctorSchedule>>> GetDoctorSchedules(int doctorId)
+        {
+            // Lấy tất cả lịch làm việc của bác sĩ theo ID
+            var doctorSchedules = await _context.DoctorSchedules
+                .Where(ds => ds.DoctorId == doctorId)
+                .ToListAsync();
+
+            if (doctorSchedules == null || !doctorSchedules.Any())
+            {
+                return NotFound("Không tìm thấy lịch làm việc cho bác sĩ này.");
+            }
+
+            // Nhóm theo DayOfWeek
+            var groupedSchedules = doctorSchedules
+                .GroupBy(ds => ds.DayOfWeek)
+                .Select(g => new
+                {
+                    DayOfWeek = g.Key,
+                    Schedules = g.ToList()
+                })
+                .ToList();
+
+            return Ok(groupedSchedules);
+        }
 
         // PUT: api/DoctorSchedules/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
