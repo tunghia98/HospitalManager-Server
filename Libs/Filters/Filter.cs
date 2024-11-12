@@ -115,7 +115,9 @@ public class StringFilter : GenericFilter<string>
 }
 
 // int or double or float or decimal or long or short or byte or sbyte
-public class NumberFilter<T> : GenericFilter<T> where T : struct, IComparable<T>, IEquatable<T>
+
+
+public class NumberFilter<T> : GenericFilter<T> where T : struct, IComparable<T>, IEquatable<T>, IComparable
 {
     public T? Equal { get; set; }
     public T? NotEquals { get; set; }
@@ -142,19 +144,19 @@ public class NumberFilter<T> : GenericFilter<T> where T : struct, IComparable<T>
         }
         if (GreaterThan != null)
         {
-            query = query.Where(this.GetLambda(property, GreaterThan.Value, nameof(Comparer<T>.Compare)));
+            query = query.Where(Expression.Lambda<Func<V, bool>>(Expression.GreaterThan(property.Body, Expression.Constant(GreaterThan.Value)), property.Parameters));
         }
         if (GreaterThanOrEqual != null)
         {
-            query = query.Where(this.GetLambda(property, GreaterThanOrEqual.Value, nameof(Comparer<T>.Compare), true));
+            query = query.Where(Expression.Lambda<Func<V, bool>>(Expression.GreaterThanOrEqual(property.Body, Expression.Constant(GreaterThanOrEqual.Value)), property.Parameters));
         }
         if (LessThan != null)
         {
-            query = query.Where(this.GetLambda(property, LessThan.Value, nameof(Comparer<T>.Compare), true));
+            query = query.Where(Expression.Lambda<Func<V, bool>>(Expression.LessThan(property.Body, Expression.Constant(LessThan.Value)), property.Parameters));
         }
         if (LessThanOrEqual != null)
         {
-            query = query.Where(this.GetLambda(property, LessThanOrEqual.Value, nameof(Comparer<T>.Compare)));
+            query = query.Where(Expression.Lambda<Func<V, bool>>(Expression.LessThanOrEqual(property.Body, Expression.Constant(LessThanOrEqual.Value)), property.Parameters));
         }
         if (IsNull == true)
         {
@@ -168,6 +170,8 @@ public class NumberFilter<T> : GenericFilter<T> where T : struct, IComparable<T>
         {
             query = query.Where(this.GetLambda(property, "Contains", In));
         }
+
         return query;
     }
+
 }

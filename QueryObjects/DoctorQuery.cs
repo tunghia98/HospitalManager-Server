@@ -12,7 +12,7 @@ namespace HospitalManagementSystem.QueryObjects
         public StringFilter Specialization { get; set; } = new ();
         public StringFilter PhoneNumber { get; set; } = new ();
         public StringFilter Email { get; set; } = new ();
-        public NumberFilter<int> DepartmentId = new();
+        public NumberFilter<int> DepartmentId { get; set; } = new();
 
         public IQueryable<Doctor> ApplyFilter(IQueryable<Doctor> query)
         {
