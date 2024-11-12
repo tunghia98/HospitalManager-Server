@@ -11,6 +11,8 @@ namespace HospitalManagementSystem.QueryObjects
         public int PageSize { get; set; } = 10;
         public int Skip => (Page - 1) * PageSize;
         public int Take => PageSize;
+        public string? SortBy { get; set; }
+        public string? SortOrder { get; set; }
     }
 
 }

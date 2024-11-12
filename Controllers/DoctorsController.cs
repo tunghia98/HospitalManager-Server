@@ -31,7 +31,7 @@ namespace EHospital.Controllers
         [HttpGet]
         public async Task<ActionResult<Paginated<Doctor>>> GetDoctors([FromQuery] DoctorQuery query)
         {
-            return await query.ApplyFilter(_context.Doctors).ToPaginatedAsync(query.Page, query.PageSize);
+            return await query.ApplyFilter(_context.Doctors).ToPaginatedAsync(query);
         }
 
         // GET: api/Doctors/5

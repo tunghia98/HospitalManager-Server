@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using EHospital.Models;
 using EHospital.DTO;
+using Swashbuckle.AspNetCore.Annotations;
 using HospitalManagementSystem.QueryObjects;
 
 namespace EHospital.Controllers
@@ -30,7 +31,7 @@ namespace EHospital.Controllers
         [HttpGet]
         public async Task<ActionResult<Paginated<Department>>> GetDepartments([FromQuery] DepartmentQuery query)
         {
-            return await query.ApplyFilter(_context.Departments).Select(x => x).ToPaginatedAsync(query.Page, query.PageSize);
+            return await query.ApplyFilter(_context.Departments).Select(x => x).ToPaginatedAsync(query);
         }
 
         // GET: api/Departments/5
