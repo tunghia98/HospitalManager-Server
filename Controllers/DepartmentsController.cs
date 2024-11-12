@@ -9,16 +9,18 @@ using HospitalManagementSystem.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using EHospital.Models;
+using EHospital.DTO;
+using HospitalManagementSystem.QueryObjects;
 
 namespace EHospital.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    // [Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class DepartmentsController : ControllerBase
     {
         private readonly HospitalDbContext _context;
-        
+
         public DepartmentsController(HospitalDbContext context)
         {
             _context = context;
@@ -26,9 +28,9 @@ namespace EHospital.Controllers
 
         // GET: api/Departments
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Department>>> GetDepartments()
+        public async Task<ActionResult<Paginated<Department>>> GetDepartments([FromQuery] DepartmentQuery query)
         {
-            return await _context.Departments.ToListAsync();
+            return await query.ApplyFilter(_context.Departments).Select(x => x).ToPaginatedAsync(query.Page, query.PageSize);
         }
 
         // GET: api/Departments/5

@@ -9,6 +9,7 @@ using HospitalManagementSystem.Models;
 using EHospital.DTO;
 using Microsoft.AspNetCore.Identity;
 using EHospital.Models;
+using HospitalManagementSystem.QueryObjects;
 
 namespace EHospital.Controllers
 {
@@ -28,9 +29,9 @@ namespace EHospital.Controllers
 
         // GET: api/Doctors
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Doctor>>> GetDoctors()
+        public async Task<ActionResult<Paginated<Doctor>>> GetDoctors([FromQuery] DoctorQuery query)
         {
-            return await _context.Doctors.ToListAsync();
+            return await query.ApplyFilter(_context.Doctors).ToPaginatedAsync(query.Page, query.PageSize);
         }
 
         // GET: api/Doctors/5
