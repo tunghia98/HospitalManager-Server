@@ -1,4 +1,5 @@
-﻿using EHospital.DTO;
+﻿using AutoMapper;
+using EHospital.DTO;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -13,18 +14,13 @@ namespace EHospital.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AccountController : ControllerBase
+    public class AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, IConfiguration configuration, IMapper mapper): ControllerBase
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly IConfiguration _configuration;
+        private readonly UserManager<IdentityUser> _userManager = userManager;
+        private readonly SignInManager<IdentityUser> _signInManager = signInManager;
+        private readonly IConfiguration _configuration = configuration;
+        private readonly IMapper _mapper = mapper;
 
-        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, IConfiguration configuration)
-        {
-            _userManager = userManager;
-            _signInManager = signInManager;
-            _configuration = configuration;
-        }
         [HttpPost("Login")]
         public async Task<IActionResult> Login(LoginModel loginModel)
         {
@@ -40,8 +36,9 @@ namespace EHospital.Controllers
 
             var authClaims = new List<Claim>
             {
-                new Claim(ClaimTypes.Email, loginModel.Email),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                new(ClaimTypes.Email, loginModel.Email),
+                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new(ClaimTypes.NameIdentifier, user.Id),
             };
             // Add role claims
             foreach (var role in roles)
@@ -66,6 +63,21 @@ namespace EHospital.Controllers
         {
             await _signInManager.SignOutAsync();
             return Ok(new { message = "Logged out successfully." });
+        }
+        [HttpGet("@Me")]
+        public async Task<IActionResult> GetCurrentUser()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            Console.WriteLine(User.Claims.Count());
+            if (user == null)
+            {
+                return Forbid();
+            }
+            UserProfileDTO userProfile = _mapper.Map<UserProfileDTO>(user);
+            var roles = await _userManager.GetRolesAsync(user);
+            userProfile.Roles = roles;
+
+            return Ok(userProfile);
         }
     }
     

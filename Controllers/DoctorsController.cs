@@ -117,7 +117,7 @@ namespace EHospital.Controllers
             var user = new IdentityUser
             {
                 UserName = registration.Email,
-                Email = registration.Email
+                Email = registration.Email,
             };
 
             var result = await _userManager.CreateAsync(user, registration.Password);
