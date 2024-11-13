@@ -125,7 +125,6 @@ namespace EHospital.Controllers
             {
                 return BadRequest(result.Errors);
             }
-
             // Step 2: Assign the Doctor role
             await _userManager.AddToRoleAsync(user, "Doctor");
 

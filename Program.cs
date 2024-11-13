@@ -81,5 +81,5 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
-
+HospitalDbContext.SeedRolesAsync(app.Services).Wait();
 app.Run();

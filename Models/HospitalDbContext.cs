@@ -4,6 +4,7 @@ using HospitalManagementSystem.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.General;
 
 namespace EHospital.Models;
 
@@ -110,4 +111,25 @@ public partial class HospitalDbContext : IdentityDbContext<IdentityUser>
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+
+
+    public static async Task SeedRolesAsync(IServiceProvider services)
+    {
+        using (var scope = services.CreateScope())
+        {
+            string[] roleNames = ["Admin", "Doctor", "Patient"];
+            // add if not exist
+            RoleManager<IdentityRole> roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            foreach (var roleName in roleNames)
+            {
+                var roleExist = await roleManager.RoleExistsAsync(roleName);
+                if (!roleExist)
+                {
+                    await roleManager.CreateAsync(new IdentityRole(roleName));
+                }
+            }
+        }
+
+        return;
+    }
 }
