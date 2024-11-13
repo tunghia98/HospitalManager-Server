@@ -10,35 +10,40 @@ using EHospital.DTO;
 using Microsoft.AspNetCore.Identity;
 using EHospital.Models;
 using HospitalManagementSystem.QueryObjects;
+using AutoMapper.QueryableExtensions;
+using AutoMapper;
 
 namespace EHospital.Controllers
 {
 
+
     [Route("api/[controller]")]
     [ApiController]
-    public class DoctorsController : ControllerBase
+    public class DoctorsController(UserManager<IdentityUser> userManager, HospitalDbContext context, IMapper mapper) : ControllerBase
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly HospitalDbContext _context;
-
-        public DoctorsController(UserManager<IdentityUser> userManager, HospitalDbContext context)
-        {
-            _userManager = userManager;
-            _context = context;
-        }
+        private readonly UserManager<IdentityUser> _userManager = userManager;
+        private readonly HospitalDbContext _context = context;
+        private readonly IMapper _mapper = mapper;
 
         // GET: api/Doctors
         [HttpGet]
-        public async Task<ActionResult<Paginated<Doctor>>> GetDoctors([FromQuery] DoctorQuery query)
+        public async Task<ActionResult<Paginated<DoctorDTO>>> GetDoctors([FromQuery] DoctorQuery query)
         {
-            return await query.ApplyFilter(_context.Doctors).ToPaginatedAsync(query);
+            return await query.ApplyFilter(_context.Doctors.Include(x => x.Department))
+            .ProjectTo<DoctorDTO>(_mapper.ConfigurationProvider)
+            .ToPaginatedAsync(query);
         }
 
         // GET: api/Doctors/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Doctor>> GetDoctor(int id)
+        public async Task<ActionResult<DoctorDTO>> GetDoctor(int id)
         {
-            var doctor = await _context.Doctors.FindAsync(id);
+            var doctor = await _context.Doctors
+            .Include(x => x.Department)
+            .Where(x => x.DoctorId == id)
+            .ProjectTo<DoctorDTO>(_mapper.ConfigurationProvider)
+            .FirstOrDefaultAsync();
+
 
             if (doctor == null)
             {

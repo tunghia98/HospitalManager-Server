@@ -12,26 +12,26 @@ using EHospital.Models;
 using EHospital.DTO;
 using Swashbuckle.AspNetCore.Annotations;
 using HospitalManagementSystem.QueryObjects;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 
 namespace EHospital.Controllers
 {
     // [Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
-    public class DepartmentsController : ControllerBase
+    public class DepartmentsController(HospitalDbContext context, IMapper mapper) : ControllerBase
     {
-        private readonly HospitalDbContext _context;
-
-        public DepartmentsController(HospitalDbContext context)
-        {
-            _context = context;
-        }
+        private readonly HospitalDbContext _context = context;
+        private readonly IMapper _mapper = mapper;
 
         // GET: api/Departments
         [HttpGet]
-        public async Task<ActionResult<Paginated<Department>>> GetDepartments([FromQuery] DepartmentQuery query)
+        public async Task<ActionResult<Paginated<DepartmentDTO>>> GetDepartments([FromQuery] DepartmentQuery query)
         {
-            return await query.ApplyFilter(_context.Departments).Select(x => x).ToPaginatedAsync(query);
+            return await query.ApplyFilter(_context.Departments)
+                                .ProjectTo<DepartmentDTO>(_mapper.ConfigurationProvider)
+                                .ToPaginatedAsync(query);
         }
 
         // GET: api/Departments/5
