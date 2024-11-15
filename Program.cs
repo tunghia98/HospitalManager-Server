@@ -50,6 +50,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
                     .AddEntityFrameworkStores<HospitalDbContext>()
                     .AddDefaultTokenProviders();
+builder.Services.AddAppServices();
 var configuration = builder.Configuration;
 
 builder.Services.AddAuthentication(options =>
@@ -58,7 +59,7 @@ builder.Services.AddAuthentication(options =>
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-.AddCookie("Cookies")
+// .AddCookie("Cookies")
 .AddJwtBearer(options =>
 {
     options.SaveToken = true;

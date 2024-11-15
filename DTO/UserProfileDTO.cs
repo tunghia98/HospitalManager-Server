@@ -9,14 +9,11 @@ namespace EHospital.DTO
         public string UserName { get; set; } = null!;
         public string Email { get; set; } = null!;
         public string PhoneNumber { get; set; } = null!;
-        public string? FirstName { get; set; }
-        public string? LastName { get; set; }
+
         public string? Address { get; set; }
         public IEnumerable<string>? Roles { get; set; }
-
-        
-
-
+        public PatientDTO? Patient { get; set; }
+        public DoctorDTO? Doctor { get; set; }
         private class Mapping : Profile
         {
             public Mapping()

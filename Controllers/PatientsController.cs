@@ -9,6 +9,7 @@ using HospitalManagementSystem.Models;
 using EHospital.DTO;
 using Microsoft.AspNetCore.Identity;
 using EHospital.Models;
+using HospitalManagementSystem.Services;
 
 namespace EHospital.Controllers
 {
@@ -17,12 +18,14 @@ namespace EHospital.Controllers
     public class PatientsController : ControllerBase
     {
         private readonly HospitalDbContext _context;
+        private readonly UserService _userService;
         private readonly UserManager<IdentityUser> _userManager;
 
-        public PatientsController(UserManager<IdentityUser> userManager, HospitalDbContext context)
+        public PatientsController(UserManager<IdentityUser> userManager, HospitalDbContext context, UserService userService)
         {
             _userManager = userManager;
             _context = context;
+            _userService = userService;
         }
 
         // GET: api/Patients
@@ -106,40 +109,9 @@ namespace EHospital.Controllers
         [HttpPost("patientregister")]
         public async Task<IActionResult> PatientRegister(PatientRegistration registration)
         {
-            // Step 1: Create the Identity User
-            var user = new IdentityUser
-            {
-                UserName = registration.Email,
-                Email = registration.Email
-            };
-
-            var result = await _userManager.CreateAsync(user, registration.Password);
-            if (!result.Succeeded)
-            {
-                return BadRequest(result.Errors);
-            }
-
-            // Step 2: Assign the Patient role
-            await _userManager.AddToRoleAsync(user, "Patient");
-
-            // Step 3: Create the Patient entry
-            var patient = new Patient
-            {
-                Name = registration.Name,
-                DateOfBirth = registration.DateOfBirth,
-                PhoneNumber = registration.PhoneNumber,
-                Email = registration.Email,
-                Gender = registration.Gender,
-                HealthInsurance = registration.HealthInsurance,
-                UserId = user.Id // Link the patient with the created Identity user
-            };
-
-            _context.Patients.Add(patient);
-            await _context.SaveChangesAsync();
-
-            return Ok("Patient registered successfully");
+            var result = await _userService.RegisterUser(registration);
+            return Ok(result);
         }
-
         private bool PatientExists(int id)
         {
             return _context.Patients.Any(e => e.PatientId == id);
