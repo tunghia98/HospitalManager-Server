@@ -115,18 +115,20 @@ public partial class HospitalDbContext : IdentityDbContext<IdentityUser>
 
     public static async Task SeedRolesAsync(IServiceProvider services)
     {
-        using (var scope = services.CreateScope())
+        using var scope = services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<HospitalDbContext>();
+        //  make sure the database is created
+  
+        context.Database.Migrate();
+        string[] roleNames = ["Admin", "Doctor", "Patient"];
+        // add if not exist
+        RoleManager<IdentityRole> roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        foreach (var roleName in roleNames)
         {
-            string[] roleNames = ["Admin", "Doctor", "Patient"];
-            // add if not exist
-            RoleManager<IdentityRole> roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            foreach (var roleName in roleNames)
+            var roleExist = await roleManager.RoleExistsAsync(roleName);
+            if (!roleExist)
             {
-                var roleExist = await roleManager.RoleExistsAsync(roleName);
-                if (!roleExist)
-                {
-                    await roleManager.CreateAsync(new IdentityRole(roleName));
-                }
+                await roleManager.CreateAsync(new IdentityRole(roleName));
             }
         }
 

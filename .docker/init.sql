@@ -1,0 +1,7 @@
+CREATE DATABASE HospitalDB
+COLLATE SQL_Latin1_General_CP1_CI_AI;
+GO
+
+
+USE HospitalDB;
+GO

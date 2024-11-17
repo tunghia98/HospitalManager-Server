@@ -1,0 +1,60 @@
+services:
+  e-hospital:
+    image: mcr.microsoft.com/dotnet/aspnet:8.0
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__cnn=Server=db,1433;Database=HospitalDB;User ID=sa;Password=SQL1234@;Connect Timeout=5;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False
+      - ASPNETCORE_URLS=http://+:8080 
+    networks:
+      - hospital-network
+
+  db:
+    image: "mcr.microsoft.com/mssql/server:2019-latest"
+    environment:
+      SA_PASSWORD: "SQL1234@"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - ./.docker/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P SQL1234@ -Q \"SELECT 1\" -N -C || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - hospital-network
+
+  init-db:
+    image: mcr.microsoft.com/mssql-tools:latest
+    volumes:
+      - ./.docker/init.sql:/init.sql
+    command: "/opt/mssql-tools/bin/sqlcmd -S db -U sa -P SQL1234@ -d master -i /init.sql"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - hospital-network
+    restart: "no"
+  # web-ui:
+  #   build: 
+  #     context: ./WebUi
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "80:80"
+  #   depends_on:
+  #     - e-hospital
+  #   environment:
+  #     - ASPNETCORE_HOST=http://e-hospital:8080
+networks:
+  hospital-network:
+    driver: bridge
