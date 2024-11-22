@@ -78,6 +78,8 @@ builder.Services.AddAuthentication(options =>
         googleOptions.ClientSecret = configuration["Authentication:Google:ClientSecret"]!;
         googleOptions.CallbackPath = "/signin-google";
         googleOptions.SignInScheme = "Identity.External";
+        googleOptions.Scope.Add("profile");
+        googleOptions.Scope.Add("email");
     });
 var app = builder.Build();
 

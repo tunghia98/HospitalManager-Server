@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using EHospital.Models;
 using HospitalManagementSystem.Models;
+using EHospital.DTO;
+using HospitalManagementSystem.QueryObjects;
 
 namespace EHospital.Controllers
 {
@@ -23,9 +25,9 @@ namespace EHospital.Controllers
 
         // GET: api/Diagnoses
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Diagnosis>>> GetDiagnoses()
+        public async Task<ActionResult<Paginated<Diagnosis>>> GetDiagnoses([FromQuery] DiagnosisQuery query)
         {
-            return await _context.Diagnoses.ToListAsync();
+            return await query.ApplyFilter(_context.Diagnoses).ToPaginatedAsync(query);
         }
 
         // GET: api/Diagnoses/5

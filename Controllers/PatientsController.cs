@@ -10,29 +10,27 @@ using EHospital.DTO;
 using Microsoft.AspNetCore.Identity;
 using EHospital.Models;
 using HospitalManagementSystem.Services;
+using AutoMapper;
+using HospitalManagementSystem.QueryObjects;
+using AutoMapper.QueryableExtensions;
 
 namespace EHospital.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PatientsController : ControllerBase
+    public class PatientsController(UserManager<IdentityUser> userManager, HospitalDbContext context, UserService userService, IMapper mapper)
+     : ControllerBase
     {
-        private readonly HospitalDbContext _context;
-        private readonly UserService _userService;
-        private readonly UserManager<IdentityUser> _userManager;
-
-        public PatientsController(UserManager<IdentityUser> userManager, HospitalDbContext context, UserService userService)
-        {
-            _userManager = userManager;
-            _context = context;
-            _userService = userService;
-        }
+        private readonly HospitalDbContext _context = context;
+        private readonly UserService _userService = userService;
+        private readonly UserManager<IdentityUser> _userManager = userManager;
+        private readonly IMapper _mapper = mapper;
 
         // GET: api/Patients
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Patient>>> GetPatients()
+        public async Task<ActionResult<Paginated<PatientDTO>>> GetPatients([FromQuery] PatientQuery query)
         {
-            return await _context.Patients.ToListAsync();
+            return await query.ApplyFilter(_context.Patients).ProjectTo<PatientDTO>(_mapper.ConfigurationProvider).ToPaginatedAsync(query);
         }
 
         // GET: api/Patients/5

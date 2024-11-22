@@ -10,7 +10,7 @@ namespace HospitalManagementSystem.Libs.Filters;
 public abstract class GenericFilter<T>
 {
     public abstract IQueryable<V> ApplyFilter<V>(IQueryable<V> query, Expression<Func<V, T>> selector);
- public virtual Expression<Func<V, bool>> GetLambda<V>(Expression<Func<V, T>> selector, T? value, MethodInfo methodInfo, bool? not = false)
+    public virtual Expression<Func<V, bool>> GetLambda<V>(Expression<Func<V, T>> selector, T? value, MethodInfo methodInfo, bool? not = false)
     {
         var param = selector.Parameters[0];
         Expression body = Expression.Call(selector.Body, methodInfo, Expression.Constant(value));
@@ -20,7 +20,7 @@ public abstract class GenericFilter<T>
         }
         return Expression.Lambda<Func<V, bool>>(body, param);
     }
-  public virtual Expression<Func<V, bool>> GetLambda<V>(Expression<Func<V, T>> selector, T? value, string methodName, bool? not = false)
+    public virtual Expression<Func<V, bool>> GetLambda<V>(Expression<Func<V, T>> selector, T? value, string methodName, bool? not = false)
     {
         var param = selector.Parameters[0];
         Expression body = Expression.Call(selector.Body, methodName, Type.EmptyTypes, Expression.Constant(value));
@@ -174,4 +174,104 @@ public class NumberFilter<T> : GenericFilter<T> where T : struct, IComparable<T>
         return query;
     }
 
+}
+
+
+public class TimeOnlyFilter : GenericFilter<TimeOnly>
+{
+    public TimeOnly? Equal { get; set; }
+    public TimeOnly? NotEquals { get; set; }
+    public TimeOnly? GreaterThan { get; set; }
+    public TimeOnly? GreaterThanOrEqual { get; set; }
+    public TimeOnly? LessThan { get; set; }
+    public TimeOnly? LessThanOrEqual { get; set; }
+    public bool? IsNull { get; set; }
+    public bool? IsNotNull { get; set; }
+    
+    public override IQueryable<V> ApplyFilter<V>(IQueryable<V> query, Expression<Func<V, TimeOnly>> selector)
+    {
+        if (Equal is not null)
+        {
+            query = query.Where(this.GetLambda(selector, Equal.Value, nameof(Equals)));
+        }
+        if (NotEquals is not null)
+        {
+            query = query.Where(this.GetLambda(selector, NotEquals.Value, nameof(Equals), true));
+        }
+        if (GreaterThan is not null)
+        {
+            query = query.Where(Expression.Lambda<Func<V, bool>>(Expression.GreaterThan(selector.Body, Expression.Constant(GreaterThan.Value)), selector.Parameters));
+        }
+        if (GreaterThanOrEqual is not null)
+        {
+            query = query.Where(Expression.Lambda<Func<V, bool>>(Expression.GreaterThanOrEqual(selector.Body, Expression.Constant(GreaterThanOrEqual.Value)), selector.Parameters));
+        }
+        if (LessThan is not null)
+        {
+            query = query.Where(Expression.Lambda<Func<V, bool>>(Expression.LessThan(selector.Body, Expression.Constant(LessThan.Value)), selector.Parameters));
+        }
+        if (LessThanOrEqual is not null)
+        {
+            query = query.Where(Expression.Lambda<Func<V, bool>>(Expression.LessThanOrEqual(selector.Body, Expression.Constant(LessThanOrEqual.Value)), selector.Parameters));
+        }
+        if (IsNull == true)
+        {
+            query = query.Where(this.GetLambda(selector, default(TimeOnly), nameof(Equals)));
+        }
+        if (IsNotNull == true)
+        {
+            query = query.Where(this.GetLambda(selector, default(TimeOnly), nameof(Equals), true));
+        }
+
+        return query;
+    }
+
+}
+
+public class DateTimeFilter : GenericFilter<DateTime>
+{
+    public DateTime? Equal { get; set; }
+    public DateTime? NotEquals { get; set; }
+    public DateTime? GreaterThan { get; set; }
+    public DateTime? GreaterThanOrEqual { get; set; }
+    public DateTime? LessThan { get; set; }
+    public DateTime? LessThanOrEqual { get; set; }
+    public bool? IsNull { get; set; }
+    public bool? IsNotNull { get; set; }
+    public override IQueryable<V> ApplyFilter<V>(IQueryable<V> query, Expression<Func<V, DateTime>> selector)
+    {
+        if (Equal != null)
+        {
+            query = query.Where(this.GetLambda(selector, Equal.Value, nameof(Equals)));
+        }
+        if (NotEquals != null)
+        {
+            query = query.Where(this.GetLambda(selector, NotEquals.Value, nameof(Equals), true));
+        }
+        if (GreaterThan != null)
+        {
+            query = query.Where(Expression.Lambda<Func<V, bool>>(Expression.GreaterThan(selector.Body, Expression.Constant(GreaterThan.Value)), selector.Parameters));
+        }
+        if (GreaterThanOrEqual != null)
+        {
+            query = query.Where(Expression.Lambda<Func<V, bool>>(Expression.GreaterThanOrEqual(selector.Body, Expression.Constant(GreaterThanOrEqual.Value)), selector.Parameters));
+        }
+        if (LessThan != null)
+        {
+            query = query.Where(Expression.Lambda<Func<V, bool>>(Expression.LessThan(selector.Body, Expression.Constant(LessThan.Value)), selector.Parameters));
+        }
+        if (LessThanOrEqual != null)
+        {
+            query = query.Where(Expression.Lambda<Func<V, bool>>(Expression.LessThanOrEqual(selector.Body, Expression.Constant(LessThanOrEqual.Value)), selector.Parameters));
+        }
+        if (IsNull == true)
+        {
+            query = query.Where(this.GetLambda(selector, default(DateTime), nameof(Equals)));
+        }
+        if (IsNotNull == true)
+        {
+            query = query.Where(this.GetLambda(selector, default(DateTime), nameof(Equals), true));
+        }
+        return query;
+    }
 }

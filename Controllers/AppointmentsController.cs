@@ -7,25 +7,30 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HospitalManagementSystem.Models;
 using EHospital.Models;
+using EHospital.DTO;
+using HospitalManagementSystem.QueryObjects;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 
 namespace EHospital.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AppointmentsController : ControllerBase
+    public class AppointmentsController(HospitalDbContext context, IMapper mapper) : ControllerBase
     {
-        private readonly HospitalDbContext _context;
-
-        public AppointmentsController(HospitalDbContext context)
-        {
-            _context = context;
-        }
+        private readonly HospitalDbContext _context = context;
+        private readonly IMapper _mapper = mapper;
 
         // GET: api/Appointments
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Appointment>>> GetAppointments()
+        public async Task<ActionResult<Paginated<AppointmentDTO>>> GetAppointments([FromQuery] AppointmentQuery query)
         {
-            return await _context.Appointments.ToListAsync();
+            return await query.ApplyFilter(_context.Appointments
+            .Include(a => a.Patient)
+            .Include(a => a.Doctor)
+            )
+            .ProjectTo<AppointmentDTO>(_mapper.ConfigurationProvider)
+            .ToPaginatedAsync(query);
         }
         // GET: api/Appointments/5
         [HttpGet("{id}")]

@@ -116,7 +116,7 @@ namespace EHospital.Controllers
             var nameIdentifier = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             // toDo: kiểm tra email có tồn tại trong db chưa, nếu chưa thì tạo mới user
             // toDo: tạo token và trả về client
-            return Ok(new { name = principal?.Identity?.Name });
+            return Ok(principal.Claims.Select(c => new { c.Type, c.Value }));
         }
 
         [HttpGet("Identity-Exists")]
