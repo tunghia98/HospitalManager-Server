@@ -20,7 +20,7 @@ namespace EHospital.DTO
         public TimeSpan AppointmentTime { get; set; }
 
         // public virtual ICollection<Diagnosis> Diagnoses { get; set; } = new List<Diagnosis>();
-        public  DoctorDTO Doctor { get; set; } = null!;
+        public DoctorDTO Doctor { get; set; } = null!;
         public PatientDTO Patient { get; set; } = null!;
         private class Mapping : Profile
         {
@@ -28,10 +28,14 @@ namespace EHospital.DTO
             {
                 CreateMap<Appointment, AppointmentDTO>()
                 .ForMember(dest => dest.Doctor, opt => opt.MapFrom(src => src.Doctor))
-                .ForMember(dest => dest.Patient, opt => opt.MapFrom(src => src.Patient));
-                
-            }
-        }
 
+                .ForMember(dest => dest.Patient, opt => opt.MapFrom(src => src.Patient))
+                .AfterMap((src, dest) =>
+                {
+                    dest.Patient.Appointments = [];
+                });
+            }
+
+        }
     }
 }

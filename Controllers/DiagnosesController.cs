@@ -9,25 +9,30 @@ using EHospital.Models;
 using HospitalManagementSystem.Models;
 using EHospital.DTO;
 using HospitalManagementSystem.QueryObjects;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 
 namespace EHospital.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class DiagnosesController : ControllerBase
+    public class DiagnosesController(HospitalDbContext context, IMapper mapper) : ControllerBase
     {
-        private readonly HospitalDbContext _context;
+        private readonly HospitalDbContext _context = context;
+        private readonly IMapper _mapper = mapper;
 
-        public DiagnosesController(HospitalDbContext context)
-        {
-            _context = context;
-        }
 
         // GET: api/Diagnoses
         [HttpGet]
-        public async Task<ActionResult<Paginated<Diagnosis>>> GetDiagnoses([FromQuery] DiagnosisQuery query)
+        public async Task<ActionResult<Paginated<DiagnosisDTO>>> GetDiagnoses([FromQuery] DiagnosisQuery query)
         {
-            return await query.ApplyFilter(_context.Diagnoses).ToPaginatedAsync(query);
+            return await query.ApplyFilter(
+                _context.Diagnoses.Include(d => d.Appointment)
+                .ThenInclude(a => a.Patient)
+                .Include(d => d.Appointment.Doctor)
+            )
+            .ProjectTo<DiagnosisDTO>(_mapper.ConfigurationProvider)
+            .ToPaginatedAsync(query);
         }
 
         // GET: api/Diagnoses/5
