@@ -111,6 +111,19 @@ namespace EHospital.Controllers
 
             return CreatedAtAction("GetDoctorSchedule", new { id = doctorSchedule.ScheduleId }, doctorSchedule);
         }
+        [HttpPost("Bulk")]
+        public async Task<ActionResult<DoctorSchedule>> BuildICrateDoctorSchedule(IEnumerable<DoctorSchedule> doctorSchedule)
+        {
+            _context.DoctorSchedules.AddRange(doctorSchedule);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetDoctorSchedule", new
+            {
+                id =
+                doctorSchedule.Select(ds => ds.ScheduleId).ToList()
+            }, doctorSchedule);
+        }
+
 
         // DELETE: api/DoctorSchedules/5
         [HttpDelete("{id}")]
