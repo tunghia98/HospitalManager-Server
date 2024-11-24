@@ -37,9 +37,15 @@ namespace EHospital.Controllers
 
         // GET: api/Diagnoses/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Diagnosis>> GetDiagnosis(int id)
+        public async Task<ActionResult<DiagnosisDTO>> GetDiagnosis(int id)
         {
-            var diagnosis = await _context.Diagnoses.FindAsync(id);
+            var diagnosis = await _context.Diagnoses
+            .Include(d => d.Appointment)
+            .ThenInclude(a => a.Patient)
+            .Include(d => d.Appointment.Doctor)
+            .Where(d => d.DiagnosisId == id)
+            .ProjectTo<DiagnosisDTO>(_mapper.ConfigurationProvider)
+            .FirstOrDefaultAsync();
 
             if (diagnosis == null)
             {
