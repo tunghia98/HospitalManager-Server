@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.Text;
+using EHospital.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,9 +48,12 @@ builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 builder.Services.AddDbContext<HospitalDbContext>(opt => opt.UseSqlServer(builder.Configuration.GetConnectionString("cnn")));
 
 builder.Services.AddAuthorization();
+builder.Services.AddTransient<IPasswordHasher<IdentityUser>, BCryptPasswordHasher<IdentityUser>>();
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+                    .AddPasswordValidator<PasswordValidator<IdentityUser>>()
                     .AddEntityFrameworkStores<HospitalDbContext>()
-                    .AddDefaultTokenProviders();
+                    .AddDefaultTokenProviders()
+                    ;
 builder.Services.AddAppServices();
 var configuration = builder.Configuration;
 

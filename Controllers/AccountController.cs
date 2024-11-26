@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using EHospital.DTO;
 using EHospital.Models;
+using HospitalManagementSystem.Models;
 using HospitalManagementSystem.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
@@ -25,6 +27,7 @@ namespace EHospital.Controllers
         IConfiguration configuration,
         TokenService tokenService,
         HospitalDbContext context,
+        RoleManager<IdentityRole> roleManager,
         IMapper mapper) : ControllerBase
     {
         private readonly UserManager<IdentityUser> _userManager = userManager;
@@ -33,21 +36,27 @@ namespace EHospital.Controllers
         private readonly IMapper _mapper = mapper;
         private readonly TokenService _tokenService = tokenService;
         private readonly HospitalDbContext _context = context;
+        private readonly RoleManager<IdentityRole> _roleManager = roleManager;
 
         [HttpPost("Login")]
         public async Task<ActionResult<LoginResponse>> Login(LoginModel loginModel)
         {
-            var user =  _context.Users.Where(u => u.Email == loginModel.NameIdentifier || u.UserName == loginModel.NameIdentifier || u.PhoneNumber == loginModel.NameIdentifier).FirstOrDefault();
+            var user = _context.Users.FirstOrDefault(u =>
+                u.Email == loginModel.NameIdentifier || u.UserName == loginModel.NameIdentifier ||
+                u.PhoneNumber == loginModel.NameIdentifier);
             if (user == null)
             {
-                return Unauthorized(new { message = "Invalid credentials." });
+                return Unauthorized(new { email = "User not found." });
             }
-            var result = await _signInManager.PasswordSignInAsync(user, loginModel.Password, false, false);
-           
-            if(!result.Succeeded)
+
+            var result =
+                _userManager.PasswordHasher.VerifyHashedPassword(user, user.PasswordHash!, loginModel.Password);
+
+            if (result == PasswordVerificationResult.Failed)
             {
-                return Unauthorized(result);
+                return Unauthorized(new { password = "Invalid password." });
             }
+
             // generate token
             var token = await _tokenService.GenerateToken(user, null);
 
@@ -74,8 +83,9 @@ namespace EHospital.Controllers
             {
                 return Forbid();
             }
-            var patient = _context.Patients.Where(p => p.UserId == user.Id).FirstOrDefault();
-            var doctor = _context.Doctors.Where(d => d.UserId == user.Id).FirstOrDefault();
+
+            var patient = _context.Patients.FirstOrDefault(p => p.UserId == user.Id);
+            var doctor = _context.Doctors.FirstOrDefault(d => d.UserId == user.Id);
             UserProfileDTO userProfile = _mapper.Map<UserProfileDTO>(user);
             var roles = await _userManager.GetRolesAsync(user);
             userProfile.Roles = roles;
@@ -101,7 +111,7 @@ namespace EHospital.Controllers
         }
 
         [HttpGet("google-response")]
-        public async Task<IActionResult> GoogleResponse()
+        public async Task<ActionResult<LoginResponse>> GoogleResponse()
         {
             var result = await this.HttpContext.AuthenticateAsync("Identity.External");
             var principal = result.Principal;
@@ -110,13 +120,47 @@ namespace EHospital.Controllers
                 return Unauthorized();
             }
 
-            var isAuthenticated = principal.Identity!.IsAuthenticated;
 
             var email = principal.FindFirst(ClaimTypes.Email)?.Value;
             var nameIdentifier = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var fullName = principal.FindFirst(ClaimTypes.Name)?.Value;
             // toDo: kiểm tra email có tồn tại trong db chưa, nếu chưa thì tạo mới user
-            // toDo: tạo token và trả về client
-            return Ok(principal.Claims.Select(c => new { c.Type, c.Value }));
+            var existUser = await _userManager.FindByEmailAsync(email!);
+            if (existUser == null)
+            {
+                var user = new IdentityUser
+                {
+                    Email = email,
+                    UserName = nameIdentifier,
+                    NormalizedUserName = nameIdentifier!,
+                    EmailConfirmed = true,
+                };
+                var resultCreate = await _userManager.CreateAsync(user, "Paitent@123");
+                await _userManager.AddToRoleAsync(user, "Patient");
+                if (!resultCreate.Succeeded)
+                {
+                    return BadRequest(resultCreate.Errors);
+                }
+
+                existUser = user;
+                var patient = new Patient
+                {
+                    Email = email,
+                    Name = fullName!,
+                    UserId = user.Id
+                };
+                await _context.Patients.AddAsync(patient);
+            }
+
+            var token = await _tokenService.GenerateToken(existUser, null);
+            var profileDto = _mapper.Map<UserProfileDTO>(existUser);
+            profileDto.Patient = _context.Patients.Where(p => p.UserId == existUser.Id)
+                .ProjectTo<PatientDTO>(_mapper.ConfigurationProvider).FirstOrDefault();
+            return Ok(new LoginResponse()
+            {
+                Token = token,
+                User = profileDto
+            });
         }
 
         [HttpGet("Identity-Exists")]
@@ -127,18 +171,21 @@ namespace EHospital.Controllers
             {
                 user = await _userManager.FindByEmailAsync(identity);
             }
+
             if (type == IdentityType.Phone)
             {
-                user =  _context.Users.Where(u => u.PhoneNumber == identity).FirstOrDefault();
+                user = _context.Users.Where(u => u.PhoneNumber == identity).FirstOrDefault();
             }
+
             if (type == IdentityType.UserName)
             {
                 user = await _userManager.FindByNameAsync(identity);
             }
-            return Ok(user != null);
 
+            return Ok(user != null);
         }
     }
+
     public enum IdentityType
     {
         Email,
