@@ -41,9 +41,12 @@ namespace EHospital.Controllers
 
         // GET: api/DoctorSchedules/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<DoctorSchedule>> GetDoctorSchedule(int id)
+        public async Task<ActionResult<DoctorScheduleDTO>> GetDoctorSchedule(int id)
         {
-            var doctorSchedule = await _context.DoctorSchedules.FindAsync(id);
+            var doctorSchedule = await _context.DoctorSchedules.Include(ds => ds.Doctor)
+                .Where(ds => ds.ScheduleId == id)
+                .ProjectTo<DoctorScheduleDTO>(_mapper.ConfigurationProvider)
+                .FirstOrDefaultAsync();
 
             if (doctorSchedule == null)
             {
@@ -82,31 +85,22 @@ namespace EHospital.Controllers
         // PUT: api/DoctorSchedules/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutDoctorSchedule(int id, DoctorSchedule doctorSchedule)
+        public async Task<IActionResult> PutDoctorSchedule(int id,[FromBody] DoctorScheduleCreateDTO doctorSchedule)
         {
             if (id != doctorSchedule.ScheduleId)
             {
                 return BadRequest();
             }
-
-            _context.Entry(doctorSchedule).State = EntityState.Modified;
-
-            try
+            var existDoctorSchedule = await _context.DoctorSchedules.FindAsync(id);
+            if (existDoctorSchedule == null)
             {
-                await _context.SaveChangesAsync();
+                return NotFound("Lịch làm việc không tồn tại.");
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!DoctorScheduleExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
+            existDoctorSchedule.DayOfWeek = doctorSchedule.DayOfWeek;
+            existDoctorSchedule.StartTime = doctorSchedule.StartTime;
+            existDoctorSchedule.EndTime = doctorSchedule.EndTime;
+            await _context.SaveChangesAsync();
+            
             return NoContent();
         }
 
@@ -121,7 +115,7 @@ namespace EHospital.Controllers
             return CreatedAtAction("GetDoctorSchedule", new { id = doctorSchedule.ScheduleId }, doctorSchedule);
         }
         [HttpPost("Bulk")]
-        public async Task<ActionResult<DoctorSchedule>> BuildICrateDoctorSchedule(IEnumerable<DoctorSchedule> doctorSchedule)
+        public async Task<ActionResult<DoctorSchedule>> BulkCreateDoctorSchedules(IEnumerable<DoctorSchedule> doctorSchedule)
         {
             _context.DoctorSchedules.AddRange(doctorSchedule);
             await _context.SaveChangesAsync();
@@ -132,7 +126,35 @@ namespace EHospital.Controllers
                 doctorSchedule.Select(ds => ds.ScheduleId).ToList()
             }, doctorSchedule);
         }
+        [HttpPost("Bulk/{doctorId}")]
+        public async Task<ActionResult<DoctorSchedule>> BulkUpdateDoctorSchedules(int doctorId,[FromBody] IEnumerable<DoctorScheduleCreateDTO> doctorSchedule)
+        {
+            // Kiểm tra xem bác sĩ có tồn tại không
+            var doctor = await _context.Doctors.FindAsync(doctorId);
+            if (doctor == null)
+            {
+                return NotFound("Bác sĩ không tồn tại.");
+            }
 
+         
+            _context.DoctorSchedules.RemoveRange(_context.DoctorSchedules.Where(ds => ds.DoctorId == doctorId));
+            var doctorSchedules = doctorSchedule.Select(ds => new DoctorSchedule
+            {
+                DoctorId = doctorId,
+                DayOfWeek = ds.DayOfWeek,
+                StartTime = ds.StartTime,
+                EndTime = ds.EndTime
+            });
+            // Thêm lịch làm việc mới
+            _context.DoctorSchedules.AddRange(doctorSchedules);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetDoctorSchedule", new
+            {
+                id =
+                doctorSchedule.Select(ds => ds.ScheduleId).ToList()
+            }, doctorSchedule);
+        }
 
         // DELETE: api/DoctorSchedules/5
         [HttpDelete("{id}")]
