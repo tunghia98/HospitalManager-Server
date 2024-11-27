@@ -9,6 +9,8 @@ using EHospital.Models;
 using HospitalManagementSystem.Models;
 using EHospital.DTO;
 using HospitalManagementSystem.QueryObjects;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 
 namespace EHospital.Controllers
 {
@@ -17,17 +19,24 @@ namespace EHospital.Controllers
     public class DoctorSchedulesController : ControllerBase
     {
         private readonly HospitalDbContext _context;
+        private readonly IMapper _mapper;
 
-        public DoctorSchedulesController(HospitalDbContext context)
+        public DoctorSchedulesController(HospitalDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
+
 
         // GET: api/DoctorSchedules
         [HttpGet]
-        public async Task<ActionResult<Paginated<DoctorSchedule>>> GetDoctorSchedules([FromQuery] DoctorScheduleQuery query)
+        public async Task<ActionResult<Paginated<DoctorScheduleDTO>>> GetAllDoctorSchedules([FromQuery] DoctorScheduleQuery query)
         {
-            return await query.ApplyFilter(_context.DoctorSchedules).ToPaginatedAsync(query);
+            return await query.ApplyFilter(
+                _context.DoctorSchedules.Include(ds => ds.Doctor)
+            )
+            .ProjectTo<DoctorScheduleDTO>(_mapper.ConfigurationProvider)
+            .ToPaginatedAsync(query);
         }
 
         // GET: api/DoctorSchedules/5

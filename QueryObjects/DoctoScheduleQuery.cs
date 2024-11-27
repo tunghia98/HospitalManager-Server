@@ -16,6 +16,7 @@ namespace HospitalManagementSystem.QueryObjects
         public TimeOnlyFilter StartTime { get; set; } = new TimeOnlyFilter();
 
         public TimeOnlyFilter EndTime { get; set; } = new TimeOnlyFilter();
+        public string? Search { get; set; }
         public IQueryable<DoctorSchedule> ApplyFilter(IQueryable<DoctorSchedule> query)
         {
             query = DoctorId.ApplyFilter(query, x => x.DoctorId);
