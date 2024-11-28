@@ -19,6 +19,8 @@ public partial class Doctor
     [StringLength(100)]
     public string? Specialization { get; set; }
 
+    public string? ImageUrl { get; set; } 
+
     [StringLength(15)]
     public string? PhoneNumber { get; set; }
 

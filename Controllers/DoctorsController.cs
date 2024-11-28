@@ -136,7 +136,8 @@ namespace EHospital.Controllers
                 PhoneNumber = registration.PhoneNumber,
                 Email = registration.Email,
                 DepartmentId = registration.DepartmentId,
-                UserId = user.Id // Link the doctor with the created Identity user
+                UserId = user.Id,// Link the doctor with the created Identity user
+                ImageUrl = registration.ImageUrl
             };
 
             _context.Doctors.Add(doctor);
