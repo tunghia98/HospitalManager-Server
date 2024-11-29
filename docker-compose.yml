@@ -10,9 +10,9 @@ services:
       db:
         condition: service_healthy
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__cnn=Server=db,1433;Database=HospitalDB;User ID=sa;Password=SQL1234@;Connect Timeout=5;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False
-      - ASPNETCORE_URLS=http://+:8080 
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__cnn: Server=db,1433;Database=HospitalDB;User ID=sa;Password=SQL1234@;Connect Timeout=5;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False
+      ASPNETCORE_URLS: http://+:8080 
     networks:
       - hospital-network
 
@@ -45,16 +45,21 @@ services:
     networks:
       - hospital-network
     restart: "no"
-  # web-ui:
-  #   build: 
-  #     context: ./WebUi
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "80:80"
-  #   depends_on:
-  #     - e-hospital
-  #   environment:
-  #     - ASPNETCORE_HOST=http://e-hospital:8080
+  web-ui:
+    build: 
+      context: ./WebUi
+      dockerfile: Dockerfile
+      args:
+        - api_server=http://e-hospital:8080
+    ports:
+      - "80:80"
+    depends_on:
+      - e-hospital
+    environment:
+      ASPNETCORE_HOST: http://e-hospital:8080
+      API_SERVER: http://e-hospital:8080
+    networks:
+      - hospital-network
 networks:
   hospital-network:
     driver: bridge
