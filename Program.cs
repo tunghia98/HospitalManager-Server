@@ -7,6 +7,7 @@ using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.Text;
 using EHospital.Services;
+using HospitalManagementSystem.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", builder => builder
+    .WithOrigins("http://localhost:8080","http://localhost:80","http://localhost:5173")
+    .AllowAnyMethod()
+    .AllowAnyHeader()
+    .AllowCredentials());
+});
 builder.Services.AddSwaggerGen(option =>
 {
     // only action name
@@ -55,6 +64,7 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>()
                     .AddDefaultTokenProviders()
                     ;
 builder.Services.AddAppServices();
+builder.Services.AddSignalR();
 var configuration = builder.Configuration;
 
 builder.Services.AddAuthentication(options =>
@@ -93,7 +103,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseCors("AllowAll");
+app.MapHub<MessageService>("/api/realtime");
 app.UseHttpsRedirection();
 app.UseAuthorization();
 

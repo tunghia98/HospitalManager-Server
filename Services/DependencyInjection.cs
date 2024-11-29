@@ -10,6 +10,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.AddTransient<TokenService>();
             services.AddTransient<UserService>();
+            services.AddTransient<MessageService>();
             return services;
         }
     }

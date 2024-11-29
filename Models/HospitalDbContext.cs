@@ -33,6 +33,8 @@ public partial class HospitalDbContext : IdentityDbContext<IdentityUser>
     public virtual DbSet<Invoice> Invoices { get; set; }
 
     public virtual DbSet<Patient> Patients { get; set; }
+    public virtual DbSet<Message> Messages { get; set; }
+    public virtual DbSet<Ticket> Tickets { get; set; }
 
 
 
@@ -106,6 +108,37 @@ public partial class HospitalDbContext : IdentityDbContext<IdentityUser>
         {
             entity.HasKey(e => e.PatientId).HasName("PK__Patient__970EC366455F9D17");
         });
+        modelBuilder.Entity<Message>()
+            .HasIndex(m => m.TicketId);
+            
+        modelBuilder.Entity<Message>()
+            .HasOne(m => m.Ticket)
+            .WithMany(t => t.Messages)
+            .HasForeignKey(m => m.TicketId)
+            .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<Message>()
+            .HasOne(m => m.User)
+            .WithMany()
+            .HasForeignKey(m => m.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Ticket>()
+            .HasOne(t => t.Patient)
+            .WithMany()
+            .HasForeignKey(t => t.PatientId)
+            .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<Ticket>()
+            .HasOne(t => t.Doctor)
+            .WithMany()
+            .HasForeignKey(t => t.DoctorId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Ticket>()
+            .HasIndex(t => t.PatientId);
+        modelBuilder.Entity<Ticket>()
+            .HasIndex(t => t.DoctorId);
+
+
 
         OnModelCreatingPartial(modelBuilder);
     }
@@ -118,7 +151,7 @@ public partial class HospitalDbContext : IdentityDbContext<IdentityUser>
         using var scope = services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<HospitalDbContext>();
         //  make sure the database is created
-  
+
         context.Database.Migrate();
         string[] roleNames = ["Admin", "Doctor", "Patient"];
         // add if not exist

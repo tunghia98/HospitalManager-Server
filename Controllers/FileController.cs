@@ -20,6 +20,7 @@ using System.Text;
 namespace EHospital.Controllers
 {
     [Route("api/[controller]")]
+    [ApiController]
     public class FileController : ControllerBase
     {
         private readonly String _uploadFolder = "wwwroot/uploads";
@@ -48,7 +49,7 @@ namespace EHospital.Controllers
                 await file.CopyToAsync(stream);
             }
 
-            return Ok( newFileName);
+            return Ok(newFileName);
         }
         [HttpGet("ViewFile/{fileName}")]
         public async Task<IActionResult> ViewFile(string fileName)

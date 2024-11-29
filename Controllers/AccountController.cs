@@ -125,7 +125,7 @@ namespace EHospital.Controllers
             var nameIdentifier = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var fullName = principal.FindFirst(ClaimTypes.Name)?.Value;
             // toDo: kiểm tra email có tồn tại trong db chưa, nếu chưa thì tạo mới user
-            var existUser = await _userManager.FindByEmailAsync(email!);
+            var existUser =  _context.Users.Where(u => u.Email == email).FirstOrDefault();
             if (existUser == null)
             {
                 var user = new IdentityUser

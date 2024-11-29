@@ -4,6 +4,7 @@ using EHospital.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EHospital.Migrations
 {
     [DbContext(typeof(HospitalDbContext))]
-    partial class HospitalDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241129180457_AddSupportTicket")]
+    partial class AddSupportTicket
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -347,9 +350,6 @@ namespace EHospital.Migrations
                     b.Property<bool>("IsClosed")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime?>("LastMessageAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<int>("PatientId")
                         .HasColumnType("int");
 
@@ -642,7 +642,7 @@ namespace EHospital.Migrations
             modelBuilder.Entity("HospitalManagementSystem.Models.Message", b =>
                 {
                     b.HasOne("HospitalManagementSystem.Models.Ticket", "Ticket")
-                        .WithMany("Messages")
+                        .WithMany()
                         .HasForeignKey("TicketId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -760,11 +760,6 @@ namespace EHospital.Migrations
                     b.Navigation("EmergencyContacts");
 
                     b.Navigation("Invoices");
-                });
-
-            modelBuilder.Entity("HospitalManagementSystem.Models.Ticket", b =>
-                {
-                    b.Navigation("Messages");
                 });
 #pragma warning restore 612, 618
         }
