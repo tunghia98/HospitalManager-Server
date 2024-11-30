@@ -132,7 +132,6 @@ namespace EHospital.Controllers
                 {
                     Email = email,
                     UserName = nameIdentifier,
-                    NormalizedUserName = nameIdentifier!,
                     EmailConfirmed = true,
                 };
                 var resultCreate = await _userManager.CreateAsync(user, "Paitent@123");
@@ -148,8 +147,10 @@ namespace EHospital.Controllers
                     Email = email,
                     Name = fullName!,
                     UserId = user.Id,
+                    DateOfBirth = new DateOnly(2000, 1, 1),
                 };
                 await _context.Patients.AddAsync(patient);
+                await _context.SaveChangesAsync();
             }
 
             var token = await _tokenService.GenerateToken(existUser, null);
