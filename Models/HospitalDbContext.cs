@@ -137,6 +137,9 @@ public partial class HospitalDbContext : IdentityDbContext<IdentityUser>
             .HasIndex(t => t.PatientId);
         modelBuilder.Entity<Ticket>()
             .HasIndex(t => t.DoctorId);
+        modelBuilder.Entity<Ticket>()
+            .Property(t => t.LastMessage)
+            .HasDefaultValueSql("''");
 
 
 

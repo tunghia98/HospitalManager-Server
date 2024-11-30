@@ -16,18 +16,18 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.IdentityModel.Tokens;
 
-public class MessageService(HospitalDbContext context, TokenService tokenService, IMapper mapper):Hub
+public class MessageService(HospitalDbContext context, TokenService tokenService, IMapper mapper) : Hub
 {
     private readonly HospitalDbContext _context = context;
     private readonly TokenService _tokenService = tokenService;
-    private readonly IMapper _mapper;
+    private readonly IMapper _mapper = mapper;
 
-    public  override async Task OnConnectedAsync()
+    public override async Task OnConnectedAsync()
     {
         Console.WriteLine("Connected");
         await base.OnConnectedAsync();
     }
-    public async Task<TicketDTO> OpenTicket(int patientId,string message)
+    public async Task<TicketDTO> OpenTicket(int patientId, string message)
     {
         Console.WriteLine("OpenTicket for patientId: " + patientId);
         var ticket = new Ticket
@@ -35,6 +35,7 @@ public class MessageService(HospitalDbContext context, TokenService tokenService
             PatientId = patientId,
             CreatedAt = DateTime.Now,
             LastMessageAt = DateTime.Now,
+            LastMessage = message,
         };
         _context.Tickets.Add(ticket);
         var user = await _context.Patients.FindAsync(patientId);
@@ -49,10 +50,10 @@ public class MessageService(HospitalDbContext context, TokenService tokenService
         };
         _context.Messages.Add(firstMessage);
         await _context.SaveChangesAsync();
+        await Clients.All.SendAsync("NewTicket", ticket.TicketId);
         return new TicketDTO
         {
             TicketId = ticket.TicketId,
-            
         };
     }
 
@@ -72,6 +73,7 @@ public class MessageService(HospitalDbContext context, TokenService tokenService
     }
     public async Task<Message> SendMessage(Guid ticketId, string content, string userId)
     {
+        Console.WriteLine("SendMessage for ticketId: " + ticketId);
         var message = new Message
         {
             TicketId = ticketId,
@@ -83,7 +85,9 @@ public class MessageService(HospitalDbContext context, TokenService tokenService
         _context.Messages.Add(message);
         var ticket = await _context.Tickets.FindAsync(ticketId);
         ticket!.LastMessageAt = DateTime.Now;
+        ticket.LastMessage = content;
         await _context.SaveChangesAsync();
+        await Clients.All.SendAsync("NewMessage", ticketId);
         return message;
     }
     public async Task<Paginated<MessageDTO>> GetMessages(Guid ticketId, int page, int pageSize)
@@ -105,50 +109,30 @@ public class MessageService(HospitalDbContext context, TokenService tokenService
         var query = _context.Tickets
             .Include(t => t.Patient)
             .Where(t => t.DoctorId == doctorId)
-            .Select(t => new TicketDTO
-            {
-                TicketId = t.TicketId,
-                PatientId = t.PatientId,
-                DoctorId = t.DoctorId,
-                CreatedAt = t.CreatedAt,
-                IsClosed = t.IsClosed,
-                Patient = _mapper.Map<PatientDTO>(t.Patient),
-                LastMessage = _mapper.Map<MessageDTO>(t.Messages.OrderByDescending(m => m.CreatedAt).FirstOrDefault()),
-            }).OrderByDescending(t => t.LastMessageAt);
+            .ProjectTo<TicketDTO>(_mapper.ConfigurationProvider).OrderByDescending(t => t.LastMessageAt);
         return await query.ToPaginatedAsync(page, pageSize);
     }
     public async Task<Paginated<TicketDTO>> GetPatientTickets(int patientId, int page, int pageSize)
     {
         var query = _context.Tickets
-            .Include(t => t.Patient)
+            .Include(t => t.Doctor)
             .Where(t => t.PatientId == patientId)
-            .Select(t => new TicketDTO
-            {
-                TicketId = t.TicketId,
-                PatientId = t.PatientId,
-                DoctorId = t.DoctorId,
-                CreatedAt = t.CreatedAt,
-                IsClosed = t.IsClosed,
-                Patient = _mapper.Map<PatientDTO>(t.Patient),
-                LastMessage = _mapper.Map<MessageDTO>(t.Messages.OrderByDescending(m => m.CreatedAt).FirstOrDefault()),
-            }).OrderByDescending(t => t.LastMessageAt);
+            .ProjectTo<TicketDTO>(_mapper.ConfigurationProvider).OrderByDescending(t => t.LastMessageAt);
         return await query.ToPaginatedAsync(page, pageSize);
+    }
+    public class LastMessageInfo
+    {
+        public Guid TicketId { get; set; }
+        public Message? LastMessage { get; set; }
     }
     public async Task<Paginated<TicketDTO>> GetUnassignedTickets(int page, int pageSize)
     {
         var query = _context.Tickets
             .Include(t => t.Patient)
             .Where(t => t.DoctorId == null)
-            .Select(t => new TicketDTO
-            {
-                TicketId = t.TicketId,
-                PatientId = t.PatientId,
-                DoctorId = t.DoctorId,
-                CreatedAt = t.CreatedAt,
-                IsClosed = t.IsClosed,
-                Patient = _mapper.Map<PatientDTO>(t.Patient),
-                LastMessage = _mapper.Map<MessageDTO>(t.Messages.OrderByDescending(m => m.CreatedAt).FirstOrDefault()),
-            }).OrderByDescending(t => t.LastMessageAt);
+            .ProjectTo<TicketDTO>(_mapper.ConfigurationProvider)
+            .OrderByDescending(t => t.LastMessageAt);
+
         return await query.ToPaginatedAsync(page, pageSize);
     }
 

@@ -147,7 +147,7 @@ namespace EHospital.Controllers
                 {
                     Email = email,
                     Name = fullName!,
-                    UserId = user.Id
+                    UserId = user.Id,
                 };
                 await _context.Patients.AddAsync(patient);
             }

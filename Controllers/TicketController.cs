@@ -104,7 +104,7 @@ namespace EHospital.Controllers
         }
 
         [HttpGet("UnAssignedTickets")]
-        public async Task<ActionResult<IEnumerable<Ticket>>> GetUnAssignedTickets([FromQuery] PaginationQuery query)
+        public async Task<ActionResult<Paginated<Ticket>>> GetUnAssignedTickets([FromQuery] PaginationQuery query)
         {
             return Ok(await _messageService.GetUnassignedTickets(query.Page, query.PageSize));
         }

@@ -27,6 +27,7 @@ public partial class Ticket
     public virtual Doctor? Doctor { get; set; }
 
     public virtual ICollection<Message> Messages { get; set; } = new HashSet<Message>();
+    public string LastMessage { get; set; } = null!;
     public DateTime? LastMessageAt { get; set; }
 
     public bool IsClosed { get; set; } = false;

@@ -10,6 +10,7 @@ namespace EHospital.DTO
     {
         public int TotalItems { get; set; }
         public IEnumerable<T> Data { get; set; } = [];
+        public int NextPage { get; set; }
     }
     public static class PaginationExtensions
     {
@@ -22,7 +23,8 @@ namespace EHospital.DTO
             return new Paginated<T>
             {
                 TotalItems = totalItems,
-                Data = data
+                Data = data,
+                NextPage = page + 1
             };
         }
          public static async Task<Paginated<T>> ToPaginatedAsync<T>(this IQueryable<T> items, PaginationQuery query) where T : class
@@ -48,7 +50,8 @@ namespace EHospital.DTO
             return new Paginated<T>
             {
                 TotalItems = totalItems,
-                Data = data
+                Data = data,
+                NextPage = page + 1
             };
         }
     }
