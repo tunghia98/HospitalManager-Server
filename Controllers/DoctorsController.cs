@@ -63,23 +63,17 @@ namespace EHospital.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(doctor).State = EntityState.Modified;
-
-            try
+            var existingDoctor = await _context.Doctors.Where(p => p.DoctorId == id).FirstOrDefaultAsync();
+            if (existingDoctor is null)
             {
-                await _context.SaveChangesAsync();
+                return NotFound();
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!DoctorExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            existingDoctor.Name = doctor.Name;
+            existingDoctor.Specialization = doctor.Specialization;
+            existingDoctor.PhoneNumber = doctor.PhoneNumber;
+            existingDoctor.DepartmentId = doctor.DepartmentId;
+            existingDoctor.ImageUrl = doctor.ImageUrl;
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }

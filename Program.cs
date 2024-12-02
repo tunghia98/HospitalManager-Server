@@ -19,7 +19,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", builder => builder
-    .WithOrigins("http://localhost:8080","http://localhost:80","http://localhost:5173")
+    .WithOrigins("http://localhost:8080", "http://localhost:80", "http://localhost:5173")
     .AllowAnyMethod()
     .AllowAnyHeader()
     .AllowCredentials());
@@ -86,7 +86,9 @@ builder.Services.AddAuthentication(options =>
         ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]!))
     };
-}).AddGoogle(googleOptions =>
+})
+
+.AddGoogle(googleOptions =>
     {
         googleOptions.ClientId = configuration["Authentication:Google:ClientId"]!;
         googleOptions.ClientSecret = configuration["Authentication:Google:ClientSecret"]!;
@@ -94,6 +96,10 @@ builder.Services.AddAuthentication(options =>
         googleOptions.SignInScheme = "Identity.External";
         googleOptions.Scope.Add("profile");
         googleOptions.Scope.Add("email");
+    }).AddFacebook(facebookOptions =>
+    {
+        facebookOptions.AppId = configuration["Authentication:Facebook:AppId"]!;
+        facebookOptions.AppSecret = configuration["Authentication:Facebook:AppSecret"]!;
     });
 var app = builder.Build();
 

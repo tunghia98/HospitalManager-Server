@@ -5,6 +5,7 @@ using EHospital.Models;
 using HospitalManagementSystem.Models;
 using HospitalManagementSystem.Services;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Facebook;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -110,6 +111,7 @@ namespace EHospital.Controllers
             return Challenge(properties, GoogleDefaults.AuthenticationScheme);
         }
 
+
         [HttpGet("google-response")]
         public async Task<ActionResult<LoginResponse>> GoogleResponse()
         {
@@ -185,6 +187,72 @@ namespace EHospital.Controllers
 
             return Ok(user != null);
         }
+
+
+         [HttpGet("login/facebook")]
+        public IActionResult LoginWithFacebook()
+        {
+            var protocol = Request.IsHttps ? "https" : "http";
+            var feHost = Request.Headers.Origin.FirstOrDefault() ?? Request.Host.ToString();
+            var redirectUri = $"{protocol}://{feHost}/auth/facebook-response";
+            var properties = new AuthenticationProperties { RedirectUri = redirectUri };
+            return Challenge(properties, FacebookDefaults.AuthenticationScheme);
+        }
+        [HttpGet("facebook-response")]
+        public async Task<ActionResult<LoginResponse>> FacebookResponse()
+        {
+            var result = await this.HttpContext.AuthenticateAsync("Identity.External");
+            var principal = result.Principal;
+            if (principal == null)
+            {
+                return Unauthorized();
+            }
+
+           var email = principal.FindFirst(ClaimTypes.Email)?.Value;
+            var nameIdentifier = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var fullName = principal.FindFirst(ClaimTypes.Name)?.Value;
+       
+            // toDo: kiểm tra email có tồn tại trong db chưa, nếu chưa thì tạo mới user
+            var existUser =  _context.Users.Where(u => u.Email == email).FirstOrDefault();
+            if (existUser == null)
+            {
+                var user = new IdentityUser
+                {
+                    Email = email,
+                    UserName = nameIdentifier,
+                    EmailConfirmed = true,
+                };
+                var resultCreate = await _userManager.CreateAsync(user, "Paitent@123");
+                await _userManager.AddToRoleAsync(user, "Patient");
+                if (!resultCreate.Succeeded)
+                {
+                    return BadRequest(resultCreate.Errors);
+                }
+
+                existUser = user;
+                var patient = new Patient
+                {
+                    Email = email,
+                    Name = fullName!,
+                    UserId = user.Id,
+                    DateOfBirth = new DateOnly(2000, 1, 1),
+                };
+                await _context.Patients.AddAsync(patient);
+                await _context.SaveChangesAsync();
+            }
+
+            var token = await _tokenService.GenerateToken(existUser, null);
+            var profileDto = _mapper.Map<UserProfileDTO>(existUser);
+            profileDto.Patient = _context.Patients.Where(p => p.UserId == existUser.Id)
+                .ProjectTo<PatientDTO>(_mapper.ConfigurationProvider).FirstOrDefault();
+            return Ok(new LoginResponse()
+            {
+                Token = token,
+                User = profileDto
+            });
+        }
+
+
     }
 
     public enum IdentityType
@@ -193,4 +261,9 @@ namespace EHospital.Controllers
         Phone,
         UserName
     }
+
+
+
+
+    
 }
