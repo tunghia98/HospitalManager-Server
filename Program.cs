@@ -66,7 +66,14 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>()
 builder.Services.AddAppServices();
 builder.Services.AddSignalR();
 var configuration = builder.Configuration;
-
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.Password.RequireDigit = true;
+    options.Password.RequiredLength = 8;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+});
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
