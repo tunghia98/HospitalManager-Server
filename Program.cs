@@ -58,6 +58,7 @@ builder.Services.AddDbContext<HospitalDbContext>(opt => opt.UseSqlServer(builder
 
 builder.Services.AddAuthorization();
 builder.Services.AddTransient<IPasswordHasher<IdentityUser>, BCryptPasswordHasher<IdentityUser>>();
+builder.Services.AddTransient<SeedDb>();
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
                     .AddPasswordValidator<PasswordValidator<IdentityUser>>()
                     .AddEntityFrameworkStores<HospitalDbContext>()
@@ -123,4 +124,5 @@ app.UseAuthorization();
 
 app.MapControllers();
 HospitalDbContext.SeedRolesAsync(app.Services).Wait();
+app.Services.CreateScope().ServiceProvider.GetRequiredService<SeedDb>().StartSeed().Wait();
 app.Run();

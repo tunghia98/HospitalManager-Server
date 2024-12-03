@@ -1,0 +1,315 @@
+{
+    "Department": [
+        {
+            "DepartmentId": 1,
+            "DepartmentName": "Khoa Tim mạch",
+            "Description": "Chẩn đoán và điều trị các bệnh về tim mạch"
+        },
+        {
+            "DepartmentId": 2,
+            "DepartmentName": "Khoa Nội tiết",
+            "Description": "Điều trị rối loạn nội tiết và đái tháo đường"
+        },
+        {
+            "DepartmentId": 3,
+            "DepartmentName": "Khoa Nhi",
+            "Description": "Chăm sóc và điều trị cho trẻ em từ 0-15 tuổi"
+        },
+        {
+            "DepartmentId": 4,
+            "DepartmentName": "Khoa Sản phụ khoa",
+            "Description": "Chăm sóc sức khỏe phụ nữ và thai sản"
+        },
+        {
+            "DepartmentId": 5,
+            "DepartmentName": "Khoa Tai Mũi Họng",
+            "Description": "Điều trị các bệnh về tai mũi họng"
+        },
+        {
+            "DepartmentId": 6,
+            "DepartmentName": "Khoa Mắt",
+            "Description": "Chẩn đoán và điều trị các bệnh về mắt"
+        },
+        {
+            "DepartmentId": 7,
+            "DepartmentName": "Khoa Da liễu",
+            "Description": "Điều trị các bệnh về da và thẩm mỹ"
+        },
+        {
+            "DepartmentId": 8,
+            "DepartmentName": "Khoa Cơ xương khớp",
+            "Description": "Điều trị các bệnh về xương khớp và cột sống"
+        },
+        {
+            "DepartmentId": 9,
+            "DepartmentName": "Khoa Tiêu hóa",
+            "Description": "Điều trị các bệnh về đường tiêu hóa"
+        },
+        {
+            "DepartmentId": 10,
+            "DepartmentName": "Khoa Thần kinh",
+            "Description": "Chẩn đoán và điều trị các bệnh về thần kinh"
+        }
+    ],
+    "Doctor": [
+        {
+            "DoctorId": 1,
+            "Name": "Nguyễn Thị Minh Tâm",
+            "Specialization": "Phó Giáo sư, Tiến sĩ chuyên ngành Tim mạch, 15 năm kinh nghiệm điều trị các bệnh tim mạch. Từng đào tạo tại Pháp về Can thiệp tim mạch",
+            "PhoneNumber": "0912345678",
+            "Email": "minhtam.bs@hospital.com",
+            "DepartmentId": 1,
+            "UserId": null,
+            "ImageUrl": null
+        },
+        {
+            "DoctorId": 2,
+            "Name": "Trần Văn Bình",
+            "Specialization": "Tiến sĩ Y khoa, chuyên gia điều trị Đái tháo đường và rối loạn nội tiết. Thành viên Hiệp hội Nội tiết Đông Nam Á",
+            "PhoneNumber": "0923456789",
+            "Email": "vanbinh.bs@hospital.com",
+            "DepartmentId": 2,
+            "UserId": null,
+            "ImageUrl": null
+        },
+        {
+            "DoctorId": 3,
+            "Name": "Lê Thị Hồng",
+            "Specialization": "Thạc sĩ Y khoa chuyên ngành Nhi, 10 năm kinh nghiệm điều trị bệnh lý trẻ em. Chuyên sâu về hen suyễn và dị ứng ở trẻ",
+            "PhoneNumber": "0934567890",
+            "Email": "lehong.bs@hospital.com",
+            "DepartmentId": 3,
+            "UserId": null,
+            "ImageUrl": null
+        },
+        {
+            "DoctorId": 4,
+            "Name": "Phạm Đức Thành",
+            "Specialization": "Tiến sĩ Y khoa, chuyên gia phẫu thuật cột sống và khớp. Đào tạo tại Hàn Quốc về kỹ thuật thay khớp vi phẫu",
+            "PhoneNumber": "0945678901",
+            "Email": "ducthanh.bs@hospital.com",
+            "DepartmentId": 8,
+            "UserId": null,
+            "ImageUrl": null
+        },
+        {
+            "DoctorId": 5,
+            "Name": "Hoàng Thị Mai",
+            "Specialization": "Thạc sĩ, Bác sĩ chuyên khoa II Sản phụ khoa. Chuyên sâu về điều trị vô sinh và hỗ trợ sinh sản",
+            "PhoneNumber": "0956789012",
+            "Email": "hoangmai.bs@hospital.com",
+            "DepartmentId": 4,
+            "UserId": null,
+            "ImageUrl": null
+        }
+    ],
+    "Patient": [
+        {
+            "PatientId": 1,
+            "Name": "Nguyễn Văn An",
+            "DateOfBirth": "1985-03-15",
+            "PhoneNumber": "0901234567",
+            "Email": "nguyenan@email.com",
+            "Gender": "Nam",
+            "HealthInsurance": "BHYT0123456789",
+            "UserId": null
+        },
+        {
+            "PatientId": 2,
+            "Name": "Trần Thị Bình",
+            "DateOfBirth": "1990-07-22",
+            "PhoneNumber": "0912345678",
+            "Email": "tranbinh@email.com",
+            "Gender": "Nữ",
+            "HealthInsurance": "BHYT0234567890",
+            "UserId": null
+        },
+        {
+            "PatientId": 3,
+            "Name": "Lê Văn Cường",
+            "DateOfBirth": "1978-11-05",
+            "PhoneNumber": "0923456789",
+            "Email": "lecuong@email.com",
+            "Gender": "Nam",
+            "HealthInsurance": "BHYT0345678901",
+            "UserId": null
+        },
+        {
+            "PatientId": 4,
+            "Name": "Phạm Thị Dung",
+            "DateOfBirth": "1995-04-30",
+            "PhoneNumber": "0934567890",
+            "Email": "phamdung@email.com",
+            "Gender": "Nữ",
+            "HealthInsurance": "BHYT0456789012",
+            "UserId": null
+        },
+        {
+            "PatientId": 5,
+            "Name": "Hoàng Văn Em",
+            "DateOfBirth": "1982-09-18",
+            "PhoneNumber": "0945678901",
+            "Email": "hoangem@email.com",
+            "Gender": "Nam",
+            "HealthInsurance": null,
+            "UserId": null
+        },
+        {
+            "PatientId": 6,
+            "Name": "Đỗ Thị Phương",
+            "DateOfBirth": "1988-12-25",
+            "PhoneNumber": "0956789012",
+            "Email": "dophuong@email.com",
+            "Gender": "Nữ",
+            "HealthInsurance": "BHYT0567890123",
+            "UserId": null
+        },
+        {
+            "PatientId": 7,
+            "Name": "Vũ Văn Giang",
+            "DateOfBirth": "1992-06-08",
+            "PhoneNumber": "0967890123",
+            "Email": "vugiang@email.com",
+            "Gender": "Nam",
+            "HealthInsurance": "BHYT0678901234",
+            "UserId": null
+        },
+        {
+            "PatientId": 8,
+            "Name": "Mai Thị Hoa",
+            "DateOfBirth": "1975-01-20",
+            "PhoneNumber": "0978901234",
+            "Email": "maihoa@email.com",
+            "Gender": "Nữ",
+            "HealthInsurance": null,
+            "UserId": null
+        },
+        {
+            "PatientId": 9,
+            "Name": "Bùi Văn Inh",
+            "DateOfBirth": "1998-08-11",
+            "PhoneNumber": "0989012345",
+            "Email": "buiinh@email.com",
+            "Gender": "Nam",
+            "HealthInsurance": "BHYT0789012345",
+            "UserId": null
+        },
+        {
+            "PatientId": 10,
+            "Name": "Ngô Thị Kim",
+            "DateOfBirth": "1980-05-27",
+            "PhoneNumber": "0990123456",
+            "Email": "ngokim@email.com",
+            "Gender": "Nữ",
+            "HealthInsurance": "BHYT0890123456",
+            "UserId": null
+        }
+    ],
+    "DoctorSchedule": [
+        {
+            "ScheduleId": 1,
+            "DoctorId": 1,
+            "DayOfWeek": 1,
+            "StartTime": "08:00:00",
+            "EndTime": "16:00:00"
+        },
+        {
+            "ScheduleId": 2,
+            "DoctorId": 1,
+            "DayOfWeek": 2,
+            "StartTime": "08:00:00",
+            "EndTime": "16:00:00"
+        },
+        {
+            "ScheduleId": 3,
+            "DoctorId": 1,
+            "DayOfWeek": 4,
+            "StartTime": "08:00:00",
+            "EndTime": "16:00:00"
+        },
+        {
+            "ScheduleId": 4,
+            "DoctorId": 2,
+            "DayOfWeek": 2,
+            "StartTime": "09:00:00",
+            "EndTime": "17:00:00"
+        },
+        {
+            "ScheduleId": 5,
+            "DoctorId": 2,
+            "DayOfWeek": 3,
+            "StartTime": "09:00:00",
+            "EndTime": "17:00:00"
+        },
+        {
+            "ScheduleId": 6,
+            "DoctorId": 2,
+            "DayOfWeek": 5,
+            "StartTime": "09:00:00",
+            "EndTime": "17:00:00"
+        },
+        {
+            "ScheduleId": 7,
+            "DoctorId": 3,
+            "DayOfWeek": 1,
+            "StartTime": "08:00:00",
+            "EndTime": "12:00:00"
+        },
+        {
+            "ScheduleId": 8,
+            "DoctorId": 3,
+            "DayOfWeek": 3,
+            "StartTime": "08:00:00",
+            "EndTime": "12:00:00"
+        },
+        {
+            "ScheduleId": 9,
+            "DoctorId": 3,
+            "DayOfWeek": 5,
+            "StartTime": "08:00:00",
+            "EndTime": "12:00:00"
+        },
+        {
+            "ScheduleId": 10,
+            "DoctorId": 4,
+            "DayOfWeek": 2,
+            "StartTime": "13:00:00",
+            "EndTime": "20:00:00"
+        },
+        {
+            "ScheduleId": 11,
+            "DoctorId": 4,
+            "DayOfWeek": 4,
+            "StartTime": "13:00:00",
+            "EndTime": "20:00:00"
+        },
+        {
+            "ScheduleId": 12,
+            "DoctorId": 4,
+            "DayOfWeek": 6,
+            "StartTime": "09:00:00",
+            "EndTime": "15:00:00"
+        },
+        {
+            "ScheduleId": 13,
+            "DoctorId": 5,
+            "DayOfWeek": 1,
+            "StartTime": "07:30:00",
+            "EndTime": "15:30:00"
+        },
+        {
+            "ScheduleId": 14,
+            "DoctorId": 5,
+            "DayOfWeek": 3,
+            "StartTime": "07:30:00",
+            "EndTime": "15:30:00"
+        },
+        {
+            "ScheduleId": 15,
+            "DoctorId": 5,
+            "DayOfWeek": 5,
+            "StartTime": "07:30:00",
+            "EndTime": "15:30:00"
+        }
+    ]
+}

@@ -16,7 +16,7 @@ public partial class Doctor
     [StringLength(100)]
     public string Name { get; set; } = null!;
 
-    [StringLength(100)]
+    [StringLength(2400)]
     public string? Specialization { get; set; }
 
     public string? ImageUrl { get; set; } 
