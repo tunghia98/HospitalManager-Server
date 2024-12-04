@@ -176,6 +176,7 @@ namespace EHospital.Controllers
         {
             return _context.DoctorSchedules.Any(e => e.ScheduleId == id);
         }
+        [HttpGet("FreeDoctors")]
         public async Task<ActionResult<IEnumerable<DoctorDTO>>> GetFreeDoctors([FromQuery] GetFreeDoctorsQuery query)
         {
            int dateOfWeek = ((int)query.AppointmentDate.DayOfWeek);

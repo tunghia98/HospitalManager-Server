@@ -167,15 +167,21 @@ namespace EHospital.Controllers
             return _mapper.Map<AppointmentDTO>(appointment);
         }
 
+        public class StatusRequest
+        {
+            public string Status { get; set; } = null!;
+        }
+
         [HttpPatch("{id}/status")]
-        public async Task<ActionResult<AppointmentDTO>> UpdateAppointmentStatus(int id, [FromBody] string status)
+        public async Task<ActionResult<AppointmentDTO>> UpdateAppointmentStatus(int id, [FromBody] StatusRequest request)
+      
         {
             var appointment = await _context.Appointments.Where(a => a.AppointmentId == id).FirstOrDefaultAsync();
             if (appointment is null)
             {
                 return NotFound("Không tìm thấy lịch hẹn.");
             }
-            appointment.Status = status;
+            appointment.Status = request.Status;
             await _context.SaveChangesAsync();
             return _mapper.Map<AppointmentDTO>(appointment);
         }
