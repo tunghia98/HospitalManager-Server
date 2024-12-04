@@ -27,6 +27,8 @@ namespace EHospital.DTO
 
         public DepartmentDTO? Department { get; set; }
         public TicketDTO? Ticket { get; set; }
+
+        public string? Position { get; set; }
         
 
         // public virtual ICollection<DoctorSchedule> DoctorSchedules { get; set; } = new List<DoctorSchedule>();

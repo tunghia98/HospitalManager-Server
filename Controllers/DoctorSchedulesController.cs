@@ -176,5 +176,23 @@ namespace EHospital.Controllers
         {
             return _context.DoctorSchedules.Any(e => e.ScheduleId == id);
         }
+        public async Task<ActionResult<IEnumerable<DoctorDTO>>> GetFreeDoctors([FromQuery] GetFreeDoctorsQuery query)
+        {
+           int dateOfWeek = ((int)query.AppointmentDate.DayOfWeek);
+           var time = TimeOnly.FromDateTime(query.AppointmentDate);
+           var queryable =  _context.DoctorSchedules
+                                    .Include(ds => ds.Doctor)
+                                    .Where(ds => ds.DayOfWeek == dateOfWeek && ds.StartTime <= time && ds.EndTime >= time);
+            if (query.DepartmentId.HasValue)
+            {
+                queryable = queryable.Where(ds => ds.Doctor.DepartmentId == query.DepartmentId);
+            }
+            var doctors = await queryable
+                .Select(ds => ds.Doctor)
+                .ProjectTo<DoctorDTO>(_mapper.ConfigurationProvider)
+                .ToListAsync();
+            return Ok(doctors);
+
+        }
     }
 }

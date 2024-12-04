@@ -18,6 +18,8 @@ public partial class Doctor
 
     [StringLength(2400)]
     public string? Specialization { get; set; }
+    [StringLength(250)]
+    public string? Position { get; set; }
 
     public string? ImageUrl { get; set; } 
 

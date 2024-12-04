@@ -16,7 +16,7 @@ public partial class Patient
     [StringLength(100)]
     public string Name { get; set; } = null!;
 
-    public DateOnly DateOfBirth { get; set; }
+    public DateOnly? DateOfBirth { get; set; }
 
     [StringLength(15)]
     public string? PhoneNumber { get; set; }

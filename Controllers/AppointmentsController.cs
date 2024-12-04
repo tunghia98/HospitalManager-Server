@@ -123,5 +123,61 @@ namespace EHospital.Controllers
         {
             return _context.Appointments.Any(e => e.AppointmentId == id);
         }
+        [HttpPost("Make")]
+        public async Task<ActionResult<AppointmentDTO>> MakeAppointment(MakeAppointmentRequest request)
+        {
+            if (request.PatientId is null && request.Email is null)
+            {
+                return BadRequest("Vui lòng cung cấp thông tin bệnh nhân hoặc thông tin liên hệ.");
+            }
+            Patient? patient = null;
+            if (request.PatientId is null)
+            {
+                var existingPatient = await _context.Patients.Where(p => p.Email == request.Email).FirstOrDefaultAsync();
+                if (existingPatient != null)
+                    return Unauthorized("Email đã được sử dụng cho một bệnh nhân khác.");
+                patient = new Patient
+                {
+                    Name = request.Name,
+                    Email = request.Email,
+                    PhoneNumber = request.PhoneNumber,
+                };
+                _context.Patients.Add(patient);
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                patient = await _context.Patients.Where(p => p.PatientId == request.PatientId).FirstOrDefaultAsync();
+                if (patient is null)
+                {
+                    return NotFound("Không tìm thấy bệnh nhân.");
+                }
+            }
+            var appointment = new Appointment
+            {
+                DoctorId = request.DoctorId,
+                PatientId = patient.PatientId,
+                AppointmentDate = request.AppointmentDate,
+                Status = "SCHEDULED",
+                CreatedAt = DateTime.Now,
+                AppointmentTime = request.AppointmentDate.TimeOfDay,
+            };
+            _context.Appointments.Add(appointment);
+            await _context.SaveChangesAsync();
+            return _mapper.Map<AppointmentDTO>(appointment);
+        }
+
+        [HttpPatch("{id}/status")]
+        public async Task<ActionResult<AppointmentDTO>> UpdateAppointmentStatus(int id, [FromBody] string status)
+        {
+            var appointment = await _context.Appointments.Where(a => a.AppointmentId == id).FirstOrDefaultAsync();
+            if (appointment is null)
+            {
+                return NotFound("Không tìm thấy lịch hẹn.");
+            }
+            appointment.Status = status;
+            await _context.SaveChangesAsync();
+            return _mapper.Map<AppointmentDTO>(appointment);
+        }
     }
 }

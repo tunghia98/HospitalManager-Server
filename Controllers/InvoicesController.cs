@@ -53,25 +53,17 @@ namespace EHospital.Controllers
             {
                 return BadRequest();
             }
-
-            _context.Entry(invoice).State = EntityState.Modified;
-
-            try
+            var invoiceToUpdate = await _context.Invoices.Where(i => i.InvoiceId == id).FirstOrDefaultAsync();
+            if (invoiceToUpdate == null)
             {
-                await _context.SaveChangesAsync();
+                return NotFound();
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!InvoiceExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
+            invoiceToUpdate.PatientId = invoice.PatientId;
+            invoiceToUpdate.AppointmentId = invoice.AppointmentId;
+            invoiceToUpdate.InvoiceDate = invoice.InvoiceDate;
+            invoiceToUpdate.Status = invoice.Status;
+            invoiceToUpdate.TotalAmount = invoice.TotalAmount;
+            await _context.SaveChangesAsync();
             return NoContent();
         }
 
@@ -107,4 +99,5 @@ namespace EHospital.Controllers
             return _context.Invoices.Any(e => e.InvoiceId == id);
         }
     }
+    
 }
