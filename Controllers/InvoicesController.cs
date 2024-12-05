@@ -9,32 +9,33 @@ using EHospital.Models;
 using HospitalManagementSystem.Models;
 using EHospital.DTO;
 using HospitalManagementSystem.QueryObjects;
+using AutoMapper.QueryableExtensions;
+using AutoMapper;
 
 namespace EHospital.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class InvoicesController : ControllerBase
+    public class InvoicesController(HospitalDbContext context, IMapper mapper) : ControllerBase
     {
-        private readonly HospitalDbContext _context;
+        private readonly HospitalDbContext _context = context;
+        private readonly IMapper _mapper = mapper;
 
-        public InvoicesController(HospitalDbContext context)
-        {
-            _context = context;
-        }
 
         // GET: api/Invoices
         [HttpGet]
-        public async Task<ActionResult<Paginated<Invoice>>> GetInvoices([FromQuery] InvoiceQuery query)
+        public async Task<ActionResult<Paginated<InvoiceDTO>>> GetInvoices([FromQuery] InvoiceQuery query)
         {
-            return await query.ApplyFilter(_context.Invoices).ToPaginatedAsync(query);
+            return await query.ApplyFilter(_context.Invoices.Include(i => i.Patient))
+            .ProjectTo<InvoiceDTO>(_mapper.ConfigurationProvider)
+            .ToPaginatedAsync(query);
         }
 
         // GET: api/Invoices/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Invoice>> GetInvoice(int id)
+        public async Task<ActionResult<InvoiceDTO>> GetInvoice(int id)
         {
-            var invoice = await _context.Invoices.FindAsync(id);
+            var invoice = await _context.Invoices.Include(i => i.Patient).Where(i => i.InvoiceId == id).ProjectTo<InvoiceDTO>(_mapper.ConfigurationProvider).FirstOrDefaultAsync();
 
             if (invoice == null)
             {
