@@ -173,7 +173,7 @@ namespace EHospital.Controllers
         }
 
         [HttpPatch("{id}/status")]
-        public async Task<ActionResult<AppointmentDTO>> UpdateAppointmentStatus(int id, [FromBody] StatusRequest request)
+        public async Task<IActionResult> UpdateAppointmentStatus(int id, [FromBody] StatusRequest request)
       
         {
             var appointment = await _context.Appointments.Where(a => a.AppointmentId == id).FirstOrDefaultAsync();
@@ -183,7 +183,7 @@ namespace EHospital.Controllers
             }
             appointment.Status = request.Status;
             await _context.SaveChangesAsync();
-            return _mapper.Map<AppointmentDTO>(appointment);
+            return NoContent();
         }
     }
 }
