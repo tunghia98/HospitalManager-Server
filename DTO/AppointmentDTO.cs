@@ -19,7 +19,6 @@ namespace EHospital.DTO
         public DateTime? CreatedAt { get; set; }
         public TimeSpan AppointmentTime { get; set; }
 
-        // public virtual ICollection<Diagnosis> Diagnoses { get; set; } = new List<Diagnosis>();
         public DoctorDTO Doctor { get; set; } = null!;
         public PatientDTO Patient { get; set; } = null!;
         private class Mapping : Profile
