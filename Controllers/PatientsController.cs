@@ -68,7 +68,8 @@ namespace EHospital.Controllers
                 existingPatient.Name = patient.Name;
                 existingPatient.PhoneNumber = patient.PhoneNumber;
                 existingPatient.HealthInsurance = patient.HealthInsurance;
-            }else
+            }
+            else
             {
                 return NotFound();
             }
@@ -114,6 +115,20 @@ namespace EHospital.Controllers
         private bool PatientExists(int id)
         {
             return _context.Patients.Any(e => e.PatientId == id);
+        }
+        [HttpGet("{id}/Appointments")]
+        public async Task<ActionResult<Paginated<AppointmentDTO>>> GetPatientAppointments(int id, [FromQuery] AppointmentQuery query)
+        {
+            query.PatientId.Equal = id;
+            return await query.ApplyFilter(_context.Appointments
+                                .Include(a => a.Patient)
+                                .Include(a => a.Doctor)
+                                .ThenInclude(a => a.Department)
+                                .Include(a => a.Diagnoses)
+                                .Include(a => a.Invoices)
+             )
+             .ProjectTo<AppointmentDTO>(_mapper.ConfigurationProvider)
+             .ToPaginatedAsync(query);
         }
     }
 }

@@ -17,6 +17,7 @@ namespace EHospital.DTO
 
         public string Status { get; set; } = null!;
         public PatientDTO Patient { get; set; } = null!;
+        public AppointmentDTO Appointment { get; set; } = null!;
         private class MappingProfile : Profile
         {
             public MappingProfile()

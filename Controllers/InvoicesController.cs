@@ -26,7 +26,7 @@ namespace EHospital.Controllers
         [HttpGet]
         public async Task<ActionResult<Paginated<InvoiceDTO>>> GetInvoices([FromQuery] InvoiceQuery query)
         {
-            return await query.ApplyFilter(_context.Invoices.Include(i => i.Patient))
+            return await query.ApplyFilter(_context.Invoices.Include(i => i.Patient).Include(i => i.Appointment))
             .ProjectTo<InvoiceDTO>(_mapper.ConfigurationProvider)
             .ToPaginatedAsync(query);
         }
@@ -35,7 +35,8 @@ namespace EHospital.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<InvoiceDTO>> GetInvoice(int id)
         {
-            var invoice = await _context.Invoices.Include(i => i.Patient).Where(i => i.InvoiceId == id).ProjectTo<InvoiceDTO>(_mapper.ConfigurationProvider).FirstOrDefaultAsync();
+            var invoice = await _context.Invoices.Include(i => i.Patient).Include(i => i.Appointment)
+            .Where(i => i.InvoiceId == id).ProjectTo<InvoiceDTO>(_mapper.ConfigurationProvider).FirstOrDefaultAsync();
 
             if (invoice == null)
             {

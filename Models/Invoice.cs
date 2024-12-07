@@ -28,4 +28,8 @@ public partial class Invoice
     [ForeignKey("PatientId")]
     [InverseProperty("Invoices")]
     public virtual Patient Patient { get; set; } = null!;
+
+    [ForeignKey("AppointmentId")]
+    [InverseProperty("Invoices")]
+    public virtual Appointment Appointment { get; set; } = null!;
 }

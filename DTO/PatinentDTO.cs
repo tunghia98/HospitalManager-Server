@@ -26,7 +26,6 @@ namespace EHospital.DTO
 
         public virtual ICollection<EmergencyContact> EmergencyContacts { get; set; } = [];
 
-        public virtual ICollection<Invoice> Invoices { get; set; } = [];
 
 
         private class Mapping : Profile
