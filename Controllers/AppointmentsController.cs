@@ -34,7 +34,6 @@ namespace EHospital.Controllers
         }
         // GET: api/Appointments/5
         [HttpGet("{id}")]
-
         public async Task<ActionResult<AppointmentDTO>> GetAppointment(int id)
         {
             var appointment = await _context.Appointments
@@ -86,9 +85,10 @@ namespace EHospital.Controllers
         // POST: api/Appointments
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Appointment>> PostAppointment(Appointment appointment)
+        public async Task<ActionResult<Appointment>> PostAppointment(AppointmentDTO appointment)
         {
-            _context.Appointments.Add(appointment);
+            var appointmentEntity = _mapper.Map<Appointment>(appointment);
+            _context.Appointments.Add(appointmentEntity);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetAppointment", new { id = appointment.AppointmentId }, appointment);

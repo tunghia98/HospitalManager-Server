@@ -14,13 +14,13 @@ namespace EHospital.DTO
         public string? Description { get; set; }
 
         public string? Notes { get; set; }
-        public  AppointmentDTO Appointment { get; set; } = null!;
-        private class Mapping : Profile
+        public  AppointmentDTO? Appointment { get; set; } 
+        public class Mapping : Profile
         {
             public Mapping()
             {
                 CreateMap<Diagnosis, DiagnosisDTO>();
-                // .ForMember(dest => dest.Appointment, opt => opt.MapFrom(src => src.Appointment));
+                CreateMap<DiagnosisDTO, Diagnosis>().ForMember(dest => dest.Appointment, opt => opt.Ignore());
    
             }
         }
