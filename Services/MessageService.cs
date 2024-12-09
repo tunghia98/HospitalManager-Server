@@ -24,7 +24,7 @@ public class MessageService(HospitalDbContext context, TokenService tokenService
 
     public override async Task OnConnectedAsync()
     {
-        Console.WriteLine("Connected");
+        var a = this.Context.User?.Claims;
         await base.OnConnectedAsync();
     }
     public async Task<TicketDTO> OpenTicket(int patientId, string message)
@@ -87,7 +87,8 @@ public class MessageService(HospitalDbContext context, TokenService tokenService
         ticket!.LastMessageAt = DateTime.Now;
         ticket.LastMessage = content;
         await _context.SaveChangesAsync();
-        await Clients.All.SendAsync("NewMessage", ticketId);
+        await Clients.All.SendAsync("NewMessage", ticketId); // thế cho nhanh, khỏi phải tìm user id
+        // await Clients.User("ádsad").SendAsync("NewMessage", ticketId);
         return message;
     }
     public async Task<Paginated<MessageDTO>> GetMessages(Guid ticketId, int page, int pageSize)

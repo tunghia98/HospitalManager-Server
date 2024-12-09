@@ -19,5 +19,5 @@ public partial class Department
     public string? Description { get; set; }
 
     [InverseProperty("Department")]
-    public virtual ICollection<Doctor> Doctors { get; set; } = new List<Doctor>();
+    public virtual ICollection<Doctor> Doctors { get; set; } = [];
 }
