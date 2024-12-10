@@ -49,40 +49,42 @@ namespace EHospital.Controllers
         [HttpGet]
         public async Task<ActionResult<DashboardDTO>> GetDashboardData()
         {
-            var startDate = DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek);
+            var startDate = DateTime.Today.AddDays(-7);
             var endDate = startDate.AddDays(7);
 
-            var weeklyAppointments = await _context.Appointments
+            var weeklyAppointments =  _context.Appointments
                 .Where(a => a.AppointmentDate >= startDate && a.AppointmentDate < endDate)
+                .ToList()
                 .GroupBy(a => a.AppointmentDate.DayOfWeek)
                 .Select(g => new WeeklyAppointmentDTO
                 {
                     DayOfWeek = g.Key.ToString(),
                     Count = g.Count()
-                })
-                .ToListAsync();
+                }).ToList();
 
-            var weeklyRevenue = await _context.Invoices
+            var weeklyRevenue =  _context.Invoices
                 .Where(i => i.InvoiceDate >= startDate && i.InvoiceDate < endDate)
+                .ToList()
                 .GroupBy(i => i.InvoiceDate.DayOfWeek)
                 .Select(g => new WeeklyRevenueDTO
                 {
                     DayOfWeek = g.Key.ToString(),
                     Amount = g.Sum(i => i.TotalAmount)
                 })
-                .ToListAsync();
+                .ToList();
 
-            var appointmentsByDepartment = await _context.Appointments
+            var appointmentsByDepartment =  _context.Appointments
                 .Include(a => a.Doctor)
                 .ThenInclude(d => d.Department)
                 .Where(a => a.AppointmentDate >= startDate && a.AppointmentDate < endDate)
+                .ToList()
                 .GroupBy(a => a.Doctor.Department.DepartmentName)
                 .Select(g => new AppointmentByDepartmentDTO
                 {
                     DepartmentName = g.Key,
                     Count = g.Count()
                 })
-                .ToListAsync();
+                .ToList();
             return Ok(new DashboardDTO
             {
                 WeeklyAppointments = weeklyAppointments,
