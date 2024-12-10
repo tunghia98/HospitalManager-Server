@@ -23,13 +23,13 @@ public partial class Invoice
     public decimal TotalAmount { get; set; }
 
     [StringLength(50)]
-    public string Status { get; set; } = null!;
+    public string Status { get; set; } = "PENDING";
 
     [ForeignKey("PatientId")]
     [InverseProperty("Invoices")]
-    public virtual Patient Patient { get; set; } = null!;
+    public virtual Patient? Patient { get; set; } 
 
     [ForeignKey("AppointmentId")]
     [InverseProperty("Invoices")]
-    public virtual Appointment Appointment { get; set; } = null!;
+    public virtual Appointment? Appointment { get; set; } 
 }
